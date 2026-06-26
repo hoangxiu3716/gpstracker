@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Bericht" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="09515873-9bb5-494e-9ce3-c4572d2733c0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="111"/>
+	<style name="styleSchadeninformation" mode="Opaque" backcolor="#3333FF">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadeninformation} >= 90]]></conditionExpression>
+			<style mode="Opaque" backcolor="#33CC33"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadeninformation} >= 75]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F38A52"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadeninformation}>=50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadeninformation} < 50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+	</style>
+	<style name="styleSchadenzusatzkosten" mode="Opaque" backcolor="#3333FF">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenzusatzkosten} >= 90]]></conditionExpression>
+			<style mode="Opaque" backcolor="#33CC33"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenzusatzkosten} >= 75]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F38A52"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenzusatzkosten}>=50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenzusatzkosten} < 50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+	</style>
+	<style name="styleSchadenhergang" mode="Opaque" backcolor="#3333FF">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenhergang} >= 90]]></conditionExpression>
+			<style mode="Opaque" backcolor="#33CC33"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenhergang} >= 75]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F38A52"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenhergang}>=50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadenhergang} < 50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+	</style>
+	<style name="styleSchadensteuerung" mode="Opaque" backcolor="#3333FF">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadensteuerung} >= 90]]></conditionExpression>
+			<style mode="Opaque" backcolor="#33CC33"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadensteuerung} >= 75]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F38A52"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadensteuerung}>=50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreSchadensteuerung} < 50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+	</style>
+	<style name="styleDatenumfang" mode="Opaque" backcolor="#3333FF">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreUploadedFile} >= 90]]></conditionExpression>
+			<style mode="Opaque" backcolor="#33CC33"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreUploadedFile} >= 75]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F38A52"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreUploadedFile}>=50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{scoreUploadedFile}< 50]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+	</style>
+	<style name="styleZahlschaden " mode="Opaque" backcolor="#FF9900">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{zahlschaden}.equalsIgnoreCase("Ja")]]></conditionExpression>
+			<style mode="Opaque" backcolor="#33CC33"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{zahlschaden}.equalsIgnoreCase( "Nein" )]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{zahlschaden}.isEmpty() || $F{zahlschaden}.equalsIgnoreCase( "Ja" ) || $F{zahlschaden}.equalsIgnoreCase( "Nein" )) ? false :  (new Double(Double.parseDouble($F{zahlschaden})) >= 90)]]></conditionExpression>
+			<style mode="Opaque" backcolor="#33CC33"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{zahlschaden}.isEmpty() || $F{zahlschaden}.equalsIgnoreCase( "Ja" ) || $F{zahlschaden}.equalsIgnoreCase( "Nein" )) ? false : (new Double(Double.parseDouble($F{zahlschaden})) >= 75)]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F38A52"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{zahlschaden}.isEmpty() || $F{zahlschaden}.equalsIgnoreCase( "Ja" ) || $F{zahlschaden}.equalsIgnoreCase( "Nein" )) ? false : (new Double(Double.parseDouble($F{zahlschaden})) >=50)]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[($F{zahlschaden}.isEmpty() || $F{zahlschaden}.equalsIgnoreCase( "Ja" ) || $F{zahlschaden}.equalsIgnoreCase( "Nein" ))? false : (new Double(Double.parseDouble($F{zahlschaden})) < 50)]]></conditionExpression>
+			<style mode="Opaque" backcolor="#FF0000"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<field name="toDoInfos" class="java.util.List"/>
+	<field name="policyNumber" class="java.lang.String"/>
+	<field name="licencePlateNumber" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="mark" class="java.lang.String"/>
+	<field name="damageLevel" class="java.lang.String"/>
+	<field name="rateDamage" class="java.lang.Double"/>
+	<field name="totalReNew" class="java.lang.Double"/>
+	<field name="totalReair" class="java.lang.Double"/>
+	<field name="average" class="java.lang.Double"/>
+	<field name="chartDamagelevelnfos" class="java.util.List"/>
+	<field name="erneuernPercent" class="java.lang.Double"/>
+	<field name="instandsetzenPercent" class="java.lang.Double"/>
+	<field name="eingangPercent" class="java.lang.Double"/>
+	<field name="scoreSchadeninformation" class="java.lang.Double"/>
+	<field name="scoreSchadenhergang" class="java.lang.Double"/>
+	<field name="scoreSchadenzusatzkosten" class="java.lang.Double"/>
+	<field name="scoreUploadedFile" class="java.lang.Double"/>
+	<field name="scoreSchadensteuerung" class="java.lang.Double"/>
+	<field name="zahlschaden" class="java.lang.String"/>
+	<field name="whatHappened" class="java.lang.String"/>
+	<field name="durchschnittPercent" class="java.lang.Double"/>
+	<field name="typeOfDamage" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<detail>
+		<band height="736" splitType="Stretch">
+			<staticText>
+				<reportElement x="18" y="52" width="137" height="20" uuid="f2130b21-ea06-4f17-b53c-f28783e86062"/>
+				<text><![CDATA[Versicherungsnummer:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="172" y="52" width="366" height="20" uuid="492962b6-5986-4eb3-92a7-06e46b072dbd"/>
+				<textFieldExpression><![CDATA[$F{policyNumber}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="172" y="102" width="366" height="20" uuid="fa99c7b1-ce65-447e-8e94-0fb79e661584"/>
+				<textFieldExpression><![CDATA[$F{licencePlateNumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="18" y="76" width="137" height="20" uuid="bac72609-b516-4b2b-9f81-fa8ee1ae4efc"/>
+				<text><![CDATA[Name:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="172" y="76" width="366" height="20" uuid="83f6c83c-1b2c-4a90-a851-eebd33f40e4e"/>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="18" y="102" width="137" height="20" uuid="cfd8885f-81c2-4cff-a72c-2b7f0e8553bb"/>
+				<text><![CDATA[Kennzeichen:
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="18" y="129" width="137" height="20" uuid="fd56c80b-01c9-409b-acfb-c025e45a7448"/>
+				<text><![CDATA[Schadenart:
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="18" y="156" width="137" height="20" uuid="06d0e83a-99ef-4fb8-96e3-c53190525271"/>
+				<text><![CDATA[Schadenhöhe:
+]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="172" y="156" width="366" height="20" uuid="649485a0-b379-46e4-a587-22c7fd9f24ce"/>
+				<textFieldExpression><![CDATA[$F{rateDamage} != null ? new java.text.DecimalFormat("0.00").format($F{rateDamage}) +" €" : ""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="11" width="555" height="30" forecolor="#FFFFFF" backcolor="#3475CD" uuid="3344287c-b96a-4613-8e2f-05c10c27f0b5"/>
+				<textElement verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+					<paragraph leftIndent="20"/>
+				</textElement>
+				<text><![CDATA[ScoreCard zur Schadenregulierung]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1" y="193" width="555" height="30" forecolor="#FFFFFF" backcolor="#3475CD" uuid="139dfecc-2c74-4d5c-bd09-0a2b33ab126c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+					<paragraph leftIndent="20"/>
+				</textElement>
+				<text><![CDATA[Scoring Schadenhöhe]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="2" y="615" width="554" height="30" forecolor="#FFFFFF" backcolor="#3475CD" uuid="fcb5cc98-7963-4638-814e-c4478ef15813"/>
+				<textElement verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+					<paragraph leftIndent="20"/>
+				</textElement>
+				<text><![CDATA[ToDo's: Bitte beachten Sie folgende Anmerkungen]]></text>
+			</staticText>
+			<subreport isUsingCache="false">
+				<reportElement x="1" y="657" width="553" height="25" uuid="476c0cef-605b-467c-bbfd-f1406c497da9">
+					<printWhenExpression><![CDATA[new Boolean($F{toDoInfos}!=null && $F{toDoInfos}.size()>0)]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{toDoInfos})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "TodoList.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport isUsingCache="false">
+				<reportElement x="2" y="272" width="552" height="200" uuid="39de1422-b6fa-415b-a163-b2bea039237f">
+					<printWhenExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue()==1)]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{chartDamagelevelnfos})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "ChartDamageLevel.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement mode="Opaque" x="187" y="230" width="87" height="20" backcolor="#3475CD" uuid="fb0be898-6a69-450d-bde1-db41b4cb8d8f"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Erneuern]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="306" y="230" width="87" height="20" backcolor="#3475CD" uuid="785b5d46-12b3-4f60-8a70-911b32831679"/>
+				<box>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Instandsetzen]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="66" y="230" width="87" height="20" backcolor="#3475CD" uuid="1981e64e-5b04-4578-bc74-2defeb729eaa"/>
+				<box>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Durchschnitt]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="187" y="250" width="87" height="20" uuid="6712d8c1-8bb7-4da7-977e-e085bafc49a9"/>
+				<box>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{erneuernPercent} > 0 ? "+" + new java.text.DecimalFormat("0.00").format($F{erneuernPercent}) + "%" :  new java.text.DecimalFormat("0.00").format($F{erneuernPercent}) + "%"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="306" y="250" width="87" height="20" uuid="1423307a-6b87-4855-a831-8794f64d8a18"/>
+				<box>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{instandsetzenPercent} > 0 ? "+" + new java.text.DecimalFormat("0.00").format($F{instandsetzenPercent}) +"%" : new java.text.DecimalFormat("0.00").format($F{instandsetzenPercent} )+"%"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="66" y="250" width="87" height="20" uuid="4ebe81bf-3f67-4cce-b8ad-9f8fbcb9e081"/>
+				<box>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{durchschnittPercent} > 0 ? "+" + new java.text.DecimalFormat("0.00").format($F{durchschnittPercent}) + "%" :  new java.text.DecimalFormat("0.00").format($F{durchschnittPercent}) + "%"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="1" y="497" width="554" height="30" forecolor="#FFFFFF" backcolor="#3475CD" uuid="6eb63cc5-79ee-4cd0-9a15-ed5f9e35d928"/>
+				<textElement verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+					<paragraph leftIndent="20"/>
+				</textElement>
+				<text><![CDATA[Schadeninformationen
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="styleZahlschaden " mode="Opaque" x="486" y="540" width="68" height="20" uuid="a9238ca6-c486-46be-86ac-ee31abeb2f7b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Zahlschaden]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="1" y="559" width="95" height="33" backcolor="#3475CD" uuid="ba2d5711-0b60-4c64-b284-7ead7ee5407f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadeninformation}+"%"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="98" y="559" width="95" height="33" backcolor="#3475CD" uuid="69760514-7cad-4149-9221-4f11d031099d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadenzusatzkosten}+"%"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="195" y="559" width="95" height="33" backcolor="#3475CD" uuid="5fa0be6a-2394-4b3d-87a0-d7bcb2aa4570"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadenhergang}+"%"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="292" y="559" width="95" height="33" backcolor="#3475CD" uuid="35c55af5-5397-4170-9a33-228678ff453a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadensteuerung}+"%"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="389" y="559" width="95" height="33" backcolor="#3475CD" uuid="6efca9e8-a622-4438-8a00-a79de2157dba"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreUploadedFile}+"%"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="styleSchadeninformation" mode="Opaque" x="1" y="540" width="95" height="20" uuid="46f3696f-082b-4a6e-82c8-3e76e94c2869"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadeninformation} < 50 ? "! Schadeninformation !" : "Schadeninformation"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="styleSchadenzusatzkosten" mode="Opaque" x="98" y="540" width="95" height="20" uuid="f396fd95-6478-4bf4-848d-7e80fd716538"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadenzusatzkosten} < 50 ? "! Schadenzusatzkosten !" : "Schadenzusatzkosten"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="styleSchadenhergang" mode="Opaque" x="195" y="540" width="95" height="20" uuid="0e202002-9600-4265-b3f8-6ea907124b26"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadenhergang}< 50 ? "! Schadenhergang !" : "Schadenhergang"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="styleSchadensteuerung" mode="Opaque" x="292" y="540" width="95" height="20" uuid="32fd46a3-0ed2-4507-86af-d6807aa08ea2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreSchadensteuerung} < 50 ? "! Schadensteuerung !" : "Schadensteuerung"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement style="styleDatenumfang" mode="Opaque" x="389" y="540" width="95" height="20" uuid="e731287f-aded-43af-b5ce-9cecfa2ddccd"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{scoreUploadedFile} < 50 ? "! Datenumfang !" : "Datenumfang"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="486" y="559" width="68" height="33" backcolor="#3475CD" uuid="18e3ab80-a40f-49a0-af97-08a496553794"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{zahlschaden}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="172" y="129" width="366" height="20" uuid="e577a9b4-d5dc-44ac-8087-2bab1ce24d46"/>
+				<textFieldExpression><![CDATA[$F{typeOfDamage}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+</jasperReport>

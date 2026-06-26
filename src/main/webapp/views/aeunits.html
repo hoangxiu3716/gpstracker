@@ -1,0 +1,70 @@
+<!-- AE Units View -->
+<!-- Header Actions -->
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h2 style="font-size: 24px; font-weight: 600;" class="card-title">AE Unit Fleet</h2>
+    <p style="color: #6b7280; font-size: 14px;">Manage and monitor all autonomous units</p>
+  </div>
+  <button class="btn btn-primary" ng-click="addUnit()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    Add AE Unit
+  </button>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-4 mb-6">
+  <div class="stat-card" ng-repeat="stat in stats">
+    <div class="stat-icon {{stat.colorClass}}">
+      <svg ng-if="stat.icon === 'bot'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+      <svg ng-if="stat.icon === 'check'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg ng-if="stat.icon === 'battery'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"/><line x1="23" y1="13" x2="23" y2="11"/></svg>
+      <svg ng-if="stat.icon === 'tool'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    </div>
+    <div class="stat-value">{{stat.value}}</div>
+    <div class="stat-label">{{stat.label}}</div>
+  </div>
+</div>
+
+<!-- Units Grid -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">All Units</h2>
+    <div class="flex gap-2">
+      <input type="text" class="form-input" placeholder="Search units..." style="width: 200px;" ng-model="searchQuery">
+      <button class="btn btn-secondary" ng-click="filterUnits()">Filter</button>
+    </div>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Unit ID</th>
+          <th>Model</th>
+          <th>Status</th>
+          <th>Battery</th>
+          <th>Location</th>
+          <th>Last Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="unit in units | filter:searchQuery">
+          <td><strong>{{unit.id}}</strong></td>
+          <td>{{unit.model}}</td>
+          <td><span class="badge badge-{{unit.statusClass}}">{{unit.status}}</span></td>
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="progress-bar" style="width: 60px;">
+                <div class="progress-fill" ng-style="{'width': unit.battery + '%'}" ng-class="getBatteryClass(unit.battery)"></div>
+              </div>
+              <span style="font-size: 12px;">{{unit.battery}}%</span>
+            </div>
+          </td>
+          <td>{{unit.location}}</td>
+          <td>{{unit.lastActive}}</td>
+          <td><button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;" ng-click="viewDetails(unit)">Details</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

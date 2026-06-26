@@ -1,0 +1,581 @@
+<!-- Mission Control View - Simplified for AE.01 Robot API -->
+<div class="mission-control-container">
+
+  <!-- Header Banner -->
+  <div class="welcome-banner">
+    <div class="welcome-banner-overlay"></div>
+    <div class="welcome-banner-content">
+      <h1 class="welcome-banner-title">Mission Control Center</h1>
+      <p class="welcome-banner-text">Monitor and control your active AE.Units in real-time. Manage missions and track performance across your fleet.</p>
+    </div>
+  </div>
+
+  <!-- Top Status Bar -->
+  <div class="status-panel">
+    <div class="status-item">
+      <span class="status-label">System</span>
+      <span class="status-badge" ng-class="{'badge-success': robot.connected, 'badge-danger': !robot.connected}">
+        {{robot.connected ? 'Online' : 'Offline'}}
+      </span>
+      <span class="status-badge badge-info" ng-if="robot.status && robot.connected">{{robot.status}}</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Mode</span>
+      <span class="status-badge" ng-class="{'badge-info': robot.mode === 'idle', 'badge-warning': robot.mode === 'navigating', 'badge-success': robot.mode === 'arrived'}">
+        {{robot.mode | uppercase}}
+      </span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Speed</span>
+      <input type="range" min="1" max="100" ng-model="speed" class="speed-slider-inline" style="width: 100px;" ng-disabled="!canControl">
+      <span class="speed-value">{{speed}}%</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Battery</span>
+      <span class="status-badge" ng-class="{'badge-success': (robot.batteryLevel>=50), 'badge-warning': (robot.batteryLevel<50 && robot.batteryLevel>=20), 'badge-danger': (robot.batteryLevel<20)}">
+        {{robot.batteryLevel || 0}}%
+      </span>
+    </div>
+    <div class="status-item" ng-if="robot.uptime > 0">
+      <span class="status-label">Uptime</span>
+      <span class="status-badge">{{convertUptime(robot.uptime)}}</span>
+    </div>
+    <div class="status-item">
+      <button class="btn btn-primary btn-sm" ng-click="connectWebRTC()" ng-disabled="webRTCStatus.webrtc === 'connected' || webRTCStatus.webrtc === 'connecting'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Reconnect WebRTC
+      </button>
+    </div>
+    <div class="status-item">
+      <button class="btn btn-danger btn-sm stop-btn" ng-click="emergencyStop()" ng-disabled="!canControl">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        STOP
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="mission-control-grid">
+    <div class="control-card joystick-section" ng-class="{'opacity-50 pointer-events-none': !canControl}">
+      <!-- Control Target Tabs -->
+      <div class="panel-tabs" style="display: flex; gap: 4px; margin-bottom: 20px; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 8px;">
+        <button class="panel-tab" style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                ng-class="{'active bg-white shadow-sm text-primary': controlTarget === 'arm', 'bg-transparent text-muted': controlTarget !== 'arm'}"
+                ng-click="setControlTarget('arm')">🦾 Arm Control</button>
+        <button class="panel-tab" style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+                ng-class="{'active bg-white shadow-sm text-primary': controlTarget === 'base', 'bg-transparent text-muted': controlTarget !== 'base'}"
+                ng-click="setControlTarget('base')">🚜 Base Control</button>
+      </div>
+
+      <h3 class="panel-title">{{controlTarget === 'arm' ? 'Arm & Lift' : 'Robot Movement'}}</h3>
+
+      <!-- Input Mode Body -->
+      <div class="joystick-body" style="height: auto; padding: 20px 0;" ng-show="controlTarget === 'arm'">
+
+        <!-- Unified Control Groups -->
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; width: 100%; flex-wrap: wrap;">
+
+          <!-- LEFT CONTROL GROUP -->
+          <div class="control-group-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px; flex: 0 1 200px; min-width: 180px;">
+            <!-- Top Buttons (Always visible) -->
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <button ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'" id="btn-backward-left" class="btn btn-secondary btn-sm center-text dpad-btn" style="flex: 1; font-size: 11px; padding: 8px 4px; position: relative;">Backward <span ng-if="keyboardActive" style="position: absolute; top: 1px; right: 2px; font-size: 8px; opacity: 0.7;">[Q]</span></button>
+              <button ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'" id="btn-forward-left" class="btn btn-secondary btn-sm center-text dpad-btn" style="flex: 1; font-size: 11px; padding: 8px 4px; position: relative;">Forward <span ng-if="keyboardActive" style="position: absolute; top: 1px; right: 2px; font-size: 8px; opacity: 0.7;">[E]</span></button>
+            </div>
+
+            <div class="arrow-keys-container"
+                 style="border: 2px dashed #ccc; padding: 15px; border-radius: 12px; position: relative; transition: all 0.3s; width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center;"
+                 ng-style="keyboardActive ? {'border-style': 'solid', 'border-color': '#28a745', 'background': 'rgba(40, 167, 69, 0.05)'} : {}">
+
+              <!-- Keyboard D-Pad -->
+              <div ng-if="inputMode === 'keyboard'">
+                <div class="arrow-row arrow-row-top margin-bottom-5">
+                  <button id="dpad-up-left" class="arrow-key dpad-btn" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+                  </button>
+                </div>
+                <div class="arrow-row arrow-row-bottom">
+                  <button id="dpad-left-left" class="arrow-key dpad-btn" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                  </button>
+                  <button id="dpad-down-left" class="arrow-key dpad-btn" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <button id="dpad-right-left" class="arrow-key dpad-btn" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Left Joystick Knob -->
+              <div id="joystick-left" style="width: 120px; height: 120px;" ng-if="inputMode === 'joystick'"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT CONTROL GROUP -->
+          <div class="control-group-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 12px; flex: 0 1 200px; min-width: 180px;">
+            <!-- Top Buttons (Always visible) -->
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <button ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'" id="btn-backward-right" class="btn btn-secondary btn-sm center-text dpad-btn" style="flex: 1; font-size: 11px; padding: 8px 4px; position: relative;">RZ- <span ng-if="keyboardActive" style="position: absolute; top: 1px; right: 2px; font-size: 8px; opacity: 0.7;">[O]</span></button>
+              <button ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'" id="btn-forward-right" class="btn btn-secondary btn-sm center-text dpad-btn" style="flex: 1; font-size: 11px; padding: 8px 4px; position: relative;">RZ+ <span ng-if="keyboardActive" style="position: absolute; top: 1px; right: 2px; font-size: 8px; opacity: 0.7;">[U]</span></button>
+            </div>
+
+            <div class="arrow-keys-container"
+                 style="border: 2px dashed #ccc; padding: 15px; border-radius: 12px; position: relative; transition: all 0.3s; width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center;"
+                 ng-style="keyboardActive ? {'border-style': 'solid', 'border-color': '#28a745', 'background': 'rgba(40, 167, 69, 0.05)'} : {}">
+
+              <!-- Keyboard D-Pad -->
+              <div ng-if="inputMode === 'keyboard'">
+                <div class="arrow-row arrow-row-top margin-bottom-5">
+                  <button id="dpad-up-right" class="arrow-key dpad-btn" style="position: relative;" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+                    <span ng-if="keyboardActive" style="position: absolute; top: 2px; right: 2px; font-size: 9px; font-weight: bold;">I</span>
+                  </button>
+                </div>
+                <div class="arrow-row arrow-row-bottom">
+                  <button id="dpad-left-right" class="arrow-key dpad-btn" style="position: relative;" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                    <span ng-if="keyboardActive" style="position: absolute; top: 2px; right: 2px; font-size: 9px; font-weight: bold;">J</span>
+                  </button>
+                  <button id="dpad-down-right" class="arrow-key dpad-btn" style="position: relative;" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+                    <span ng-if="keyboardActive" style="position: absolute; top: 2px; right: 2px; font-size: 9px; font-weight: bold;">K</span>
+                  </button>
+                  <button id="dpad-right-right" class="arrow-key dpad-btn" style="position: relative;" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+                    <span ng-if="keyboardActive" style="position: absolute; top: 2px; right: 2px; font-size: 9px; font-weight: bold;">L</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right Joystick Knob -->
+              <div id="joystick-right" style="width: 120px; height: 120px;" ng-if="inputMode === 'joystick'"></div>
+            </div>
+
+            <!-- Bottom Buttons (Always visible) -->
+            <div style="display: flex; gap: 8px; width: 100%;">
+              <button ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'" id="btn-xarm-j1-up" class="btn btn-secondary btn-sm center-text dpad-btn" style="flex: 1; font-size: 11px; padding: 8px 4px; position: relative;">J1+ <span ng-if="keyboardActive" style="position: absolute; top: 1px; right: 2px; font-size: 8px; opacity: 0.7;">[Y]</span></button>
+              <button ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'" id="btn-xarm-j1-down" class="btn btn-secondary btn-sm center-text dpad-btn" style="flex: 1; font-size: 11px; padding: 8px 4px; position: relative;">J1- <span ng-if="keyboardActive" style="position: absolute; top: 1px; right: 2px; font-size: 8px; opacity: 0.7;">[H]</span></button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Base Control Specialized UI -->
+      <div class="base-control-ui" ng-show="controlTarget === 'base' && inputMode === 'keyboard'" style="padding: 10px;">
+        <div class="teleop-status" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; margin-bottom: 15px;"
+             ng-class="baseTeleop.active ? 'bg-success-light text-success border-success' : 'text-muted border-gray'">
+          <span style="font-weight: bold; font-size: 13px;">🚜 Drive Mode: <b ng-class="baseTeleop.active ? 'text-success' : 'text-danger'">{{baseTeleop.active ? 'ON' : 'OFF'}}</b></span>
+          <button class="btn btn-sm" ng-class="baseTeleop.active ? 'btn-danger' : 'btn-primary'" ng-click="toggleBaseDrive()">
+            {{baseTeleop.active ? 'Disable' : 'Enable'}}
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 20px; align-items: flex-start;">
+          <!-- Key Indicators -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+            <div id="base-key-w" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd; border-radius: 6px; font-weight: bold; cursor: pointer; user-select: none;" ng-class="{'bg-primary text-white border-primary shadow-sm': baseTeleop.keys.w}">W</div>
+            <div style="display: flex; gap: 5px;">
+              <div id="base-key-a" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd; border-radius: 6px; font-weight: bold; cursor: pointer; user-select: none;" ng-class="{'bg-primary text-white border-primary shadow-sm': baseTeleop.keys.a}">A</div>
+              <div id="base-key-s" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd; border-radius: 6px; font-weight: bold; cursor: pointer; user-select: none;" ng-class="{'bg-primary text-white border-primary shadow-sm': baseTeleop.keys.s}">S</div>
+              <div id="base-key-d" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #ddd; border-radius: 6px; font-weight: bold; cursor: pointer; user-select: none;" ng-class="{'bg-primary text-white border-primary shadow-sm': baseTeleop.keys.d}">D</div>
+            </div>
+            <small class="text-muted" style="font-size: 9px; margin-top: 5px;">WASD Keys / Click to Drive</small>
+          </div>
+
+          <!-- Parameters -->
+          <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="input-group">
+              <label style="font-size: 10px; color: #888;">Linear (m/s)</label>
+              <input type="number" class="form-input" ng-model="baseTeleop.linear" step="0.01" style="padding: 4px; height: 28px; font-size: 12px;"/>
+            </div>
+            <div class="input-group">
+              <label style="font-size: 10px; color: #888;">Angular (rad/s)</label>
+              <input type="number" class="form-input" ng-model="baseTeleop.angular" step="0.01" style="padding: 4px; height: 28px; font-size: 12px;"/>
+            </div>
+            <div style="grid-column: span 2; font-size: 10px; color: #666; padding: 6px; border-radius: 4px; font-family: monospace;">
+              TX: <strong>{{baseTeleop.keys.w || baseTeleop.keys.s ? (baseTeleop.keys.w ? baseTeleop.linear : -baseTeleop.linear) : 0}}</strong> m/s |
+              <strong>{{baseTeleop.keys.a || baseTeleop.keys.d ? (baseTeleop.keys.a ? baseTeleop.angular : -baseTeleop.angular) : 0}}</strong> rad/s
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Mode Footer -->
+      <div class="joystick-info">
+        <span class="mode-label">Input:</span>
+        <div class="btn-group">
+          <button class="btn btn-sm"
+                  ng-class="{'btn-primary': inputMode === 'keyboard', 'btn-secondary': inputMode !== 'keyboard'}"
+                  ng-click="setInputMode('keyboard')" ng-disabled="!canControl">Keyboard</button>
+          <button class="btn btn-sm"
+                  ng-class="{'btn-primary': inputMode === 'joystick', 'btn-secondary': inputMode !== 'joystick'}"
+                  ng-click="setInputMode('joystick')" ng-disabled="!canControl">Joystick</button>
+        </div>
+
+        <button class="btn btn-sm margin-left-10"
+                ng-if="inputMode === 'keyboard'"
+                ng-class="keyboardActive ? 'btn-danger' : 'btn-success'"
+                ng-click="toggleKeyboardControl()"
+                style="min-width: 140px; font-weight: bold; border: 2px solid transparent;"
+                ng-style="!keyboardActive ? {'border-color': '#28a745', 'box-shadow': '0 0 10px rgba(40,167,69,0.3)'} : {}">
+          {{keyboardActive ? 'STOP KEYBOARD' : 'ACTIVATE KEYBOARD'}}
+        </button>
+
+        <span class="badge badge-info margin-left-10" ng-if="gamepadConnected">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="margin-right-5"><path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+            Xbox Controller Active
+        </span>
+
+        <span class="webrtc-status-badge"
+              title="WebRTC Connection Status"
+              ng-class="{
+                'connecting': webRTCStatus.webrtc === 'connecting' || webRTCStatus.janus === 'connecting',
+                'connected': webRTCStatus.webrtc === 'connected',
+                'disconnected': webRTCStatus.webrtc !== 'connected' && webRTCStatus.webrtc !== 'connecting'
+              }">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+          {{ webRTCStatus.webrtc }}
+        </span>
+        <!-- <span class="info-label padding-left-5">Speed: {{speed}}%</span> -->
+      </div>
+
+      <!-- Lift Controls (Synchronized with perfect htmlWithControl.txt) -->
+      <div class="lift-controls" ng-class="{'opacity-50 pointer-events-none': !canControl}">
+        <h4 class="lift-title">🔧 Lift Control</h4>
+
+        <!-- Prominent Real-time Position Display -->
+        <div class="lift-position-display-header" style="text-align: center; margin-bottom: 15px; padding: 12px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 8px;">
+          <span style="font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px;">Current Height</span>
+          <strong style="font-size: 24px; color: var(--primary-cyan); letter-spacing: 1px;">{{igus.position | number:3}} <small style="font-size: 14px;">cm</small></strong>
+        </div>
+
+        <!-- Status Display Grid -->
+        <div class="lift-status-mini-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 15px; padding: 10px; border-radius: 8px; font-size: 11px;">
+          <div class="status-item">
+            <span style="color: #888;">Conn:</span>
+            <strong ng-class="igus.connected ? 'text-success' : 'text-danger'">{{igus.connected ? 'Online' : 'Offline'}}</strong>
+          </div>
+          <div class="status-item">
+            <span style="color: #888;">Enabled:</span>
+            <strong ng-class="igus.enabled ? 'text-success' : 'text-danger'">{{igus.enabled ? 'Yes' : 'No'}}</strong>
+          </div>
+          <div class="status-item">
+            <span style="color: #888;">Moving:</span> <strong ng-class="igus.isMoving ? 'text-warning' : ''">{{igus.isMoving ? 'Yes' : 'No'}}</strong>
+          </div>
+          <div class="status-item">
+            <span style="color: #888;">Homed:</span> <strong>{{igus.referenced ? 'Yes' : 'No'}}</strong>
+          </div>
+          <div class="status-item">
+            <span style="color: #888;">Fault:</span> <strong ng-class="igus.fault ? 'text-danger' : 'text-success'">{{igus.fault ? 'YES' : 'No'}}</strong>
+          </div>
+        </div>
+
+        <!-- Parameter Row -->
+        <div class="lift-params-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div class="input-group">
+            <label style="font-size: 11px; color: #888;">Velocity (%)</label>
+            <input type="number" class="form-input" ng-model="lift.velocityPercent" min="0.1" max="100" step="0.1" ng-disabled="!canControl" style="padding: 4px; height: 30px;"/>
+          </div>
+          <div class="input-group">
+            <label style="font-size: 11px; color: #888;">Accel (%)</label>
+            <input type="number" class="form-input" ng-model="lift.accelerationPercent" min="0.1" max="100" step="0.1" ng-disabled="!canControl" style="padding: 4px; height: 30px;"/>
+          </div>
+        </div>
+
+        <div class="lift-buttons" style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-bottom: 5px;">
+          <button id="lift-jog-up" class="btn btn-secondary jog-btn-circle" style="max-width: 60px; height: 60px; border-radius: 50%; position: relative;" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m18 15-6-6-6 6"/></svg>
+            <span class="shortcut-label">P</span>
+          </button>
+
+          <button class="btn btn-danger" ng-click="stopDrive()" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'" style="height: 40px;">STOP</button>
+
+          <button id="lift-jog-down" class="btn btn-secondary jog-btn-circle" style="max-width: 60px; height: 60px; border-radius: 50%; position: relative;" ng-disabled="!robot.connected || !canControl || webRTCStatus.webrtc != 'connected'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg>
+            <span class="shortcut-label">M</span>
+          </button>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 10px;">
+          <div ng-if="keyboardActive">
+            <small style="color: #28a745; font-weight: bold;">Keyboard: [WASD] Base | [Arrows] Arm | [QE] Arm Bwd/Fwd | [IJKL/OUYH] Hand | [PM] Lift | [Enter/Esc] Symovo Mission</small>
+          </div>
+          <div ng-if="gamepadIndex !== null">
+            <small style="color: #0284c7; font-weight: bold;">Xbox: [Y] Up, [A] Down | [LB/RB] Speed</small>
+          </div>
+        </div>
+
+        <div class="lift-jog-speed-group" style="margin-bottom: 15px; text-align: center;">
+          <label style="font-size: 11px; color: #888;">Jog Speed (%): </label>
+          <input class="form-input" type="number" ng-model="lift.jogSpeed" min="0.1" max="100" step="0.1" style="width: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 2px 5px;"/>
+        </div>
+
+        <div class="lift-position-input" style="border-top: 1px solid #eee; padding-top: 15px;">
+          <div class="input-group" style="margin-bottom: 10px;">
+            <label style="font-size: 11px; color: #888;">Set Move Position (cm)</label>
+            <input type="number" class="form-input" ng-model="lift.targetPosition" placeholder="cm" step="0.1" ng-disabled="!canControl" style="width: 100%;"/>
+          </div>
+          <div style="display: flex; gap: 5px;">
+            <button class="btn btn-primary status-badge-pill" ng-click="moveLift(lift.targetPosition)" ng-disabled="!robot.connected || !canControl" style="flex: 1;">Move</button>
+            <button class="btn btn-success status-badge-pill" ng-click="liftReference()" ng-disabled="!robot.connected || !canControl" style="flex: 1;">Reference (Homing)</button>
+            <button class="btn btn-warning status-badge-pill" ng-click="liftFaultReset()" ng-disabled="!igus.fault" style="flex: 1;">Fault Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Section -->
+    <div class="camera-section">
+      <!-- Navigation Status (Integrated) -->
+      <div class="navigation-status-overlay-compact" ng-if="currentJob && currentJob.id" style="margin-bottom: 15px; border: 1px solid var(--primary-cyan); border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15); transition: all 0.3s ease;">
+         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+               <span class="status-badge" ng-class="{
+                 'badge-info': currentStatus.status === 'idle',
+                 'badge-warning': currentStatus.status === 'navigating',
+                 'badge-success': currentStatus.status === 'arrived',
+                 'badge-danger': currentStatus.status === 'error'
+               }" style="font-size: 11px; padding: 4px 12px; border-radius: 8px; font-weight: bold; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                  <span style="margin-right: 6px;">🛰️</span> {{currentStatus.status | uppercase}}
+               </span>
+               <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; line-height: 1;">ETA Remaining</span>
+                  <span style="font-size: 14px; font-weight: 700; color: #1f2937;" ng-if="currentStatus.eta_seconds !== null">
+                     {{currentStatus.eta_seconds}} <small style="font-size: 10px; color: #666;">seconds</small>
+                  </span>
+                  <span style="font-size: 14px; font-weight: 700; color: #9ca3af;" ng-if="currentStatus.eta_seconds === null">--</span>
+               </div>
+            </div>
+            <div style="text-align: right;">
+               <span style="font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 2px;">Goal Identifier</span>
+               <span style="font-size: 11px; color: #4b5563; font-family: 'JetBrains Mono', monospace; background: #f3f4f6; padding: 2px 6px; border-radius: 4px;" ng-if="currentJob.id">
+                  {{currentJob.name}}
+               </span>
+            </div>
+         </div>
+         
+         <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="flex: 1; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden; border: 1px solid #e2e8f0;">
+               <div style="height: 100%; background: linear-gradient(90deg, var(--primary-cyan), #8b5cf6); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);" ng-style="{'width': (currentStatus.progress_percent || 0) + '%'}"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; min-width: 50px;">
+               <span style="font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase;">Progress</span>
+               <span style="font-weight: 800; font-size: 16px; color: var(--primary-cyan); line-height: 1;">{{currentStatus.progress_percent || 0}}%</span>
+            </div>
+         </div>
+         
+         <div ng-if="currentStatus.error_reason" style="margin-top: 12px; font-size: 12px; color: #dc2626; display: flex; align-items: center; gap: 8px; background: #fef2f2; padding: 10px; border-radius: 8px; border: 1px solid #fecaca;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span style="font-weight: 500;">{{currentStatus.error_reason}}</span>
+         </div>
+      </div>
+
+      <div class="camera-section-header">
+        <h3 class="panel-title">Camera Feed</h3>
+        <div class="camera-controls">
+          <div class="camera-switcher">
+            <button type="button" class="btn btn-sm" ng-class="{'btn-primary': currentCameraView==='color', 'btn-secondary': currentCameraView!=='color'}" ng-click="setCameraView('color')">Color</button>
+            <button type="button" class="btn btn-sm" ng-class="{'btn-primary': currentCameraView==='depth', 'btn-secondary': currentCameraView!=='depth'}" ng-click="setCameraView('depth')">Depth</button>
+            <button type="button" class="btn btn-sm" ng-class="{'btn-primary': currentCameraView==='nice', 'btn-secondary': currentCameraView!=='nice'}" ng-click="setCameraView('nice')">Nice</button>
+            <button type="button" class="btn btn-sm" ng-class="{'btn-primary': currentCameraView==='3d', 'btn-secondary': currentCameraView!=='3d'}" ng-click="setCameraView('3d')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5"/><path d="M12 12v9"/><path d="M12 12L4 7.5"/></svg>
+              3D
+            </button>
+            <button type="button" class="btn btn-sm" ng-class="{'btn-primary': currentCameraView==='grid', 'btn-secondary': currentCameraView!=='grid'}" ng-click="setCameraView('grid')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Grid
+            </button>
+          </div>
+          <button class="btn btn-sm btn-secondary" ng-click="toggleFullscreenCamera()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+            Fullscreen
+          </button>
+        </div>
+      </div>
+
+      <div class="camera-live-container">
+        <!-- Single View (Color, Depth, Nice, 3D) -->
+        <iframe
+                ng-if="currentCameraView !== 'grid'"
+                ng-src="{{liveCameraUrl}}"
+                class="camera-live-iframe"
+                frameborder="0"
+                allowfullscreen
+                allow="autoplay; fullscreen">
+        </iframe>
+
+        <!-- 2x2 Grid View -->
+        <div ng-if="currentCameraView === 'grid'" class="camera-grid-layout">
+          <div class="camera-grid-cell">
+            <!-- <span class="camera-label">Color</span> -->
+            <iframe ng-src="{{trustedUrls.color}}" frameborder="0" allow="autoplay; fullscreen"></iframe>
+          </div>
+          <div class="camera-grid-cell">
+            <!-- <span class="camera-label">Depth</span> -->
+            <iframe ng-src="{{trustedUrls.depth}}" frameborder="0" allow="autoplay; fullscreen"></iframe>
+          </div>
+          <div class="camera-grid-cell">
+            <!-- <span class="camera-label">Nice</span> -->
+            <iframe ng-src="{{trustedUrls.nice}}" frameborder="0" allow="autoplay; fullscreen"></iframe>
+          </div>
+          <div class="camera-grid-cell bg-gray-900">
+            <!-- <span class="camera-label">Digital Twin (3D)</span> -->
+            <iframe ng-src="{{trustedUrls.arm3d}}" frameborder="0" allow="autoplay; fullscreen"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Quick Actions -->
+    <div class="control-card quick-actions-section" ng-class="{'opacity-50 pointer-events-none': !canControl}">
+      <h3 class="panel-title">Robot Actions</h3>
+      <div class="quick-actions-grid-simple">
+        <button class="btn btn-action-lg" ng-click="quickAction('product')" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          Product
+        </button>
+        <button class="btn btn-action-lg" ng-click="quickAction('box1')" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          Box 1
+        </button>
+        <button class="btn btn-action-lg" ng-click="quickAction('box2')" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          Box 2
+        </button>
+        <button class="btn btn-action-lg" ng-click="quickAction('transport')" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Transport
+        </button>
+        <button class="btn btn-action-lg" ng-click="quickAction('autotake')" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+          Autotake
+        </button>
+        <!-- <button class="btn btn-action-lg" ng-click="quickAction('charging')" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.19"/><line x1="23" y1="13" x2="23" y2="11"/><polyline points="11 6 7 12 13 12 9 18"/></svg>
+          Charge
+        </button> -->
+        <button class="btn btn-action-lg btn-success" ng-click="setReady()" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Set Ready
+        </button>
+        <button class="btn btn-action-lg btn-warning" ng-click="safetyRecover()" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Recover
+        </button>
+        <button class="btn btn-action-lg" ng-click="gripperDrop()" ng-disabled="!robot.connected || !canControl">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="3" y="11" width="18" height="11" rx="2"/><circle cx="12" cy="16" r="2"/></svg>
+          Drop
+        </button>
+      </div>
+      <!-- POSITIONS SECTION (Standardized with Classes) -->
+      <div class="position-management-container padding-top-10">
+        <h3 class="panel-title">
+          Positions <span class="pos-count">({{customPositions.length}})</span>
+          <button class="btn btn-add-pos" ng-click="togglePosForm()">+ Add</button>
+        </h3>
+
+        <div class="pos-action-bar">
+          <select id="posSelect" class="pos-dropdown-select" ng-model="selectedPosition">
+            <option value="">— select —</option>
+            <option ng-repeat="pos in customPositions" ng-value="pos" value="{{pos.name}}" data-id="{{pos.id}}">
+              {{pos.name}}{{pos.params.description ? ' — ' + pos.params.description : ''}}
+            </option>
+          </select>
+          <button class="btn btn-primary btn-nav-go" id="navBtn" ng-click="startJob()" ng-disabled="!robot.connected || !selectedPosition" style="position: relative;">Go <span ng-if="keyboardActive" style="font-size: 8px; opacity: 0.7;">[↵]</span></button>
+          <button class="btn btn-secondary btn-nav-edit" id="posEditBtn" ng-click="editSelectedPos()" ng-disabled="!selectedPosition">Edit</button>
+          <button class="btn btn-danger btn-nav-del" id="posDelBtn" ng-click="deleteSelectedPos()" ng-disabled="!selectedPosition">Del</button>
+          <button class="btn btn-danger btn-nav-cancel" id="cancelBtn" ng-click="cancelJob()" style="position: relative;">Cancel <span ng-if="keyboardActive" style="font-size: 8px; opacity: 0.7;">[Esc]</span></button>
+        </div>
+
+        <!-- change pose -->
+          <h3 class="panel-title">
+          Section <span class="pos-count">({{sections.length}})</span>
+        </h3>
+        <div class="pos-action-bar">
+          <select id="sectionSelect" class="pos-dropdown-select" ng-model="selectedSection">
+            <option value="">— select —</option>
+            <option ng-repeat="section in sections" ng-value="section" value="{{section.name}}" data-id="{{section.id}}">
+              {{section.name}}{{section.params.description ? ' — ' + section.params.description : ''}}
+            </option>
+          </select>
+          <button class="btn btn-primary btn-nav-go" id="navBtn" ng-click="changeSection()" ng-disabled="!robot.connected || !selectedSection" style="position: relative;">Go <span ng-if="keyboardActive" style="font-size: 8px; opacity: 0.7;">[↵]</span></button>
+          <!-- <button class="btn btn-secondary btn-nav-edit" id="posEditBtn" ng-click="editSelectedPos()" ng-disabled="!selectedPosition">Edit</button>
+          <button class="btn btn-danger btn-nav-del" id="posDelBtn" ng-click="deleteSelectedPos()" ng-disabled="!selectedPosition">Del</button>
+          <button class="btn btn-danger btn-nav-cancel" id="cancelBtn" ng-click="cancelJob()" style="position: relative;">Cancel <span ng-if="keyboardActive" style="font-size: 8px; opacity: 0.7;">[Esc]</span></button> -->
+        </div>
+
+
+        <!-- Position Form (Dynamic Appearance) -->
+        <div id="posForm" class="pos-form-popup" ng-if="posForm.visible">
+          <div class="form-group-sm">
+            <label>Name *</label>
+            <input type="text" ng-model="posForm.name" placeholder="e.g. dock_A">
+          </div>
+          <div class="form-group-sm">
+            <label>Description</label>
+            <input type="text" ng-model="posForm.description" placeholder="optional">
+          </div>
+          <div class="form-group-sm">
+            <label>Params JSON</label>
+            <textarea ng-model="posForm.params" rows="2" placeholder='{}'></textarea>
+          </div>
+          <div class="pos-form-actions">
+            <button class="btn btn-primary btn-xs" ng-click="savePosition()">Save</button>
+            <button class="btn btn-secondary btn-xs" ng-click="captureCurrentPos()">Capture</button>
+            <button class="btn btn-secondary btn-xs" ng-click="togglePosForm()">Cancel</button>
+          </div>
+        </div>
+          
+
+        <!-- <h3 class="panel-title">
+          Choose a section <span class="pos-count"></span>
+          <button class="btn btn-add-pos" ng-click="togglePosForm()">+ Add</button>
+        </h3>
+
+        <div class="pos-action-bar">
+          <select id="posSelect" class="pos-dropdown-select" ng-model="selectedPosition">
+            <option value="">— select —</option>
+            <option ng-repeat="pos in loadCustomWaypoints" ng-value="pos" value="{{pos.name}}" data-id="{{pos.id}}">
+              {{pos.name}}{{pos.params.description ? ' — ' + pos.params.description : ''}}
+            </option>
+          </select>
+          <button class="btn btn-primary btn-nav-go" id="navBtn" ng-click="startJob()" ng-disabled="!robot.connected || !selectedPosition">Go</button>
+          <button class="btn btn-secondary btn-nav-edit" id="posEditBtn" ng-click="editSelectedPos()" ng-disabled="!selectedPosition">Edit</button>
+          <button class="btn btn-danger btn-nav-del" id="posDelBtn" ng-click="deleteSelectedPos()" ng-disabled="!selectedPosition">Del</button>
+          <button class="btn btn-danger btn-nav-cancel" id="cancelBtn" ng-click="cancelJob()">Cancel</button>
+        </div> -->
+
+        <!-- Charging Stations (Integrated) -->
+        <div class="charging-section-mini">
+          <h4 class="mini-title">
+            Charging Stations
+            <button class="btn btn-refresh-mini" ng-click="refreshCharging()">Refresh</button>
+          </h4>
+          <div class="charging-scroll-area">
+            <div ng-repeat="st in chargingStations" class="charging-item-row">
+              <span class="station-name">{{st.name || st.label || 'Station ' + st.id}}</span>
+              <button class="btn btn-xs btn-primary" ng-click="goToCharging(st.id)">Go</button>
+            </div>
+            <div ng-if="chargingStations.length === 0" class="empty-text">No stations found</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Navigation Progress Overlay -->
+  <!-- <div class="navigation-overlay" ng-if="navigation.active">
+    <div class="navigation-modal">
+      <h3>Task in Progress</h3>
+      <p>Action: <strong>{{navigation.target.name}}</strong></p>
+      <div class="progress-bar-large">
+        <div class="progress-fill" ng-style="{'width': currentStatus.progress_percent + '%'}"></div>
+      </div>
+      <span class="progress-text">{{currentStatus.progress_percent}}%</span>
+      <button class="btn btn-danger" ng-click="cancelNavigation()" ng-disabled="!canControl">Cancel</button>
+    </div>
+  </div> -->
+</div>

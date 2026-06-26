@@ -1,0 +1,198 @@
+<!-- Login View - Matching React design -->
+<div class="login-page">
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" ng-show="$root.showCustomLoading">
+        <div class="loading-spinner-container">
+            <div class="loading-spinner"></div>
+            <span class="loading-text">Loading<span class="loading-dots"></span></span>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="login-theme-toggle">
+        <button class="header-btn dark-mode-toggle" ng-click="toggleDarkMode()">
+            <svg ng-if="!darkMode" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            <svg ng-if="darkMode" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        </button>
+    </div>
+
+    <!-- Background elements -->
+    <div class="login-background">
+        <div class="grid-pattern"></div>
+        <div class="gradient-circle gradient-cyan"></div>
+        <div class="gradient-circle gradient-fuchsia"></div>
+        <svg class="circuit-lines" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke="#4F46E5" stroke-width="2">
+                <path d="M769.5,400.5L650.5,400.5C632.5,400.5 618.5,386.5 618.5,368.5L618.5,243.5" stroke-opacity="0.5" />
+                <path d="M769.5,400.5L650.5,400.5C632.5,400.5 618.5,414.5 618.5,432.5L618.5,557.5" stroke-opacity="0.5" />
+                <path d="M30.5,400.5L149.5,400.5C167.5,400.5 181.5,386.5 181.5,368.5L181.5,243.5" stroke-opacity="0.5" />
+                <path d="M30.5,400.5L149.5,400.5C167.5,400.5 181.5,414.5 181.5,432.5L181.5,557.5" stroke-opacity="0.5" />
+                <path d="M400.5,30.5L400.5,149.5C400.5,167.5 386.5,181.5 368.5,181.5L243.5,181.5" stroke-opacity="0.5" />
+                <path d="M400.5,30.5L400.5,149.5C400.5,167.5 414.5,181.5 432.5,181.5L557.5,181.5" stroke-opacity="0.5" />
+                <path d="M400.5,769.5L400.5,650.5C400.5,632.5 386.5,618.5 368.5,618.5L243.5,618.5" stroke-opacity="0.5" />
+                <path d="M400.5,769.5L400.5,650.5C400.5,632.5 414.5,618.5 432.5,618.5L557.5,618.5" stroke-opacity="0.5" />
+            </g>
+            <g fill="#4F46E5" fill-opacity="0.5">
+                <circle cx="400" cy="400" r="6" />
+                <circle cx="400" cy="30" r="3" />
+                <circle cx="400" cy="770" r="3" />
+                <circle cx="30" cy="400" r="3" />
+                <circle cx="770" cy="400" r="3" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- Left side - Branding (hidden on mobile) -->
+    <div class="login-branding">
+        <div class="branding-content">
+            <div class="brand-logo">
+                <div class="logo-icon">
+                    <span>A</span>
+                </div>
+                <h1>gpstracker.Hub</h1>
+            </div>
+            <h2 class="brand-title">
+                Advanced Robotics <br>Operations Center
+            </h2>
+            <p class="brand-description">
+                Control and monitor your robotic fleet with our state-of-the-art management platform. Streamlined operations, real-time analytics, and comprehensive control.
+            </p>
+            <div class="brand-features">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                    <p>Real-time mission control</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                    <p>Advanced analytics dashboard</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                    <p>Secure multi-user access</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right side - Login form -->
+    <div class="login-form-container">
+        <!-- Mobile logo -->
+        <div class="mobile-logo">
+            <div class="logo-icon">
+                <span>A</span>
+            </div>
+            <h1>gpstracker.Hub</h1>
+        </div>
+
+        <div class="login-card">
+            <h2 translate="LOGIN.TITLE"></h2>
+            <p class="login-subtitle" translate="LOGIN.ENTER_USERNAME"></p>
+
+            <!-- Error Alert -->
+            <div class="alert alert-danger" ng-if="error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>{{error}}</span>
+            </div>
+
+            <!-- Login Form -->
+            <form name="loginForm" ng-submit="login()" novalidate>
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" translate="LOGIN.USERNAME"></label>
+                    <div class="input-with-icon">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                        <!-- <input type="email" 
+                               id="email" 
+                               name="email"
+                               ng-model="info.username" 
+                               placeholder="you@example.com"
+                               autocomplete="email"
+                               required> -->
+                        <input type="text" 
+                               id="email" 
+                               name="email"
+                               ng-model="username"
+                               placeholder="username"
+                               tabindex="1">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="password" translate="LOGIN.PASSWORD"></label>
+                        <!-- <a href="#" class="test-credentials-link" ng-click="showTestCredentials = !showTestCredentials; $event.preventDefault()">Test credentials</a> -->
+                    </div>
+                    <div class="input-with-icon">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <input type="password" 
+                               id="password" 
+                               name="password"
+                               ng-model="password"
+                               placeholder="••••••••"
+                               autocomplete="current-password"
+                               tabindex="2"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Test Credentials Info -->
+                <div class="test-credentials-box" ng-if="showTestCredentials">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                    <div class="test-credentials-content">
+                        <p class="test-title">Test credentials:</p>
+                        <p>Email: testuser@gpstracker-tech.com</p>
+                        <p>Password: TestUser123!</p>
+                        <div class="test-buttons">
+                            <button type="button" ng-click="info.username='testuser@gpstracker-tech.com'; info.password='TestUser123!'; showTestCredentials=false">Use these credentials</button>
+                            <button type="button" ng-click="info.username='admin@gpstracker-tech.com'; info.password='Admin123!'; showTestCredentials=false">Use alternate</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe" ng-model="rememberMe" tabindex="3">
+                    <label for="rememberMe" translate="LOGIN.REMEMBER_ME"></label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-signin" ng-disabled="loginForm.$invalid" tabindex="4">
+                    <span ng-if="!$root.showCustomLoading" translate="LOGIN.SIGN_IN"></span>
+                    <span ng-if="$root.showCustomLoading" class="btn-loading">
+                        <svg class="spinner" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+                        </svg>
+                        {{ 'LOGIN.SIGNING_IN' | translate }}
+                    </span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="gpstrackerHub" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>AE.Hub - gpstracker Technologies</title>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- SweetAlert -->
+  <link rel="stylesheet" href="css/lib/sweetalert.min.css">
+</head>
+<body ng-class="{'dark': darkMode}">
+
+  <!-- Main View -->
+  <div ui-view></div>
+
+  <!-- AngularJS -->
+  <script src="js/lib/angular.min.js"></script>
+  <script src="js/lib/angular-ui-router.min.js"></script>
+  <script src="js/lib/angular-cookies.min.js"></script>
+  <script src="js/lib/angular-resource.min.js"></script>
+  <script src="js/lib/angular-translate.min.js"></script>
+  <script src="js/lib/angular-translate-loader-static-files.min.js"></script>
+  
+
+  <!-- jQuery -->
+  <script src="js/lib/jquery.min.js"></script>
+  
+  <!-- SweetAlert -->
+  <script src="js/lib/sweetalert.min.js"></script>
+
+  <!-- WebRTC Libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/8.2.3/adapter.min.js"></script>
+  <script src="https://api.techvisioncloud.pl/api/v1/color_camera/janus.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
+
+  <!-- Paho MQTT -->
+  <script src="js/lib/paho-mqtt.min.js"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Server Configuration -->
+  <script src="contant.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/controllers.js"></script>
+
+  <!-- Other Lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Controllers -->
+  <script src="js/controllers/login/LoginController.js"></script>
+  <script src="js/controllers/dashboard/DashboardController.js"></script>
+  <script src="js/controllers/mission/MissionControlController.js"></script>
+  <script src="js/controllers/academy/AcademyController.js"></script>
+  <script src="js/controllers/aeunits/AEUnitsController.js"></script>
+  <script src="js/controllers/data/DataCenterController.js"></script>
+  <script src="js/controllers/profile/ProfileController.js"></script>
+  <script src="js/controllers/settings/SettingsController.js"></script>
+  <script src="js/controllers/admin/AdministrationController.js"></script>
+  <script src="js/controllers/admin/ServerHealthController.js"></script>
+  <script src="js/controllers/admin/InterfacesController.js"></script>
+  <script src="js/controllers/admin/SubscriptionController.js"></script>
+  <script src="js/controllers/mission/MissionDetailController.js"></script>
+  <script src="js/controllers/about/AboutController.js"></script>
+
+  <!-- for deployment -->
+<!-- <script src="dist/js/app.min.js"></script> -->
+</body>
+</html>

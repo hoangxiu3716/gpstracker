@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title >Claimstar</title>
+		<style type="text/css">
+			.link{
+				color:#1e64b2;
+				cursor: pointer;
+			}
+			.bold-text{
+				font-weight: 600;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="order-details">
+			<p>Lieber <a href="https://admiraldirekt.svpro.de:8443/admiraldirekt" class="link bold-text">AdmiralDirekt.de</a> Kunde, </p>
+			<br/>
+			<p>Sie haben einen Link zur Durchf&uuml;hrung der mobilen Schadenmeldung angefordert.</p>
+			<p><a href="$url" class="link">Zum Starten der mobilen Schadenmeldung ein hier klicken.</a></p>
+			<p>Ihre</p>
+			<p>AdmiralDirekt.de</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+            http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+			http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd
+           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+
+    <!-- This will automatically locate any and all property files you have 
+    within your classpath, provided they fall under the META-INF/spring directory. 
+    The located property files are parsed and their values can then be used within 
+    application context files in the form of ${propertyKey}. -->
+    <context:property-placeholder location="classpath*:*.properties"/>
+    <context:component-scan base-package="de.gimik.apps.gpstracker.backend.model"/>
+    <context:component-scan base-package="de.gimik.apps.gpstracker.backend.service"/>
+    <context:component-scan base-package="de.gimik.apps.gpstracker.backend.web.RESTful"/>
+    <context:component-scan base-package="de.gimik.apps.gpstracker.backend.web.job"/>
+    <context:component-scan base-package="de.gimik.apps.gpstracker.backend.web.websocket"/>
+    <jpa:repositories base-package="de.gimik.apps.gpstracker.backend.repository"/>
+    <context:annotation-config/>
+
+    <!-- auditing -->
+    <jpa:auditing auditor-aware-ref="auditor"/>
+    <bean id="auditor" class="de.gimik.apps.gpstracker.backend.security.SpringSecurityAuditorAware"/>
+
+    <!--
+           DATABASE SETUP 
+    -->
+
+    <bean class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close" id="dataSource">
+        <property name="driverClassName" value="${database.driverClassName}"/>
+        <property name="url" value="${database.url}"/>
+        <property name="username" value="${database.username}"/>
+        <property name="password" value="${database.password}"/>
+        <property name="testOnBorrow" value="true"/>
+        <property name="testOnReturn" value="true"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="timeBetweenEvictionRunsMillis" value="1800000"/>
+        <property name="numTestsPerEvictionRun" value="3"/>
+        <property name="minEvictableIdleTimeMillis" value="1800000"/>
+        <property name="validationQuery" value="SELECT 1"/>
+    </bean>
+
+    <bean id="entityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="persistenceUnitName" value="fastlogPU"/>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="generateDdl" value="true"/>
+                <property name="showSql" value="true"/>
+                
+            </bean>
+        </property>
+        <property name="dataSource" ref="dataSource"/>
+
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <bean id="userService" class="de.gimik.apps.gpstracker.backend.service.impl.UserServiceImpl">
+    </bean>
+
+    <bean id="dataBaseInitializer" class="de.gimik.apps.gpstracker.backend.service.DataBaseInitializer"
+          init-method="initDataBase">
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!--
+           INIT REST COMPONENTS 
+    -->
+
+    <bean id="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
+    <bean id="passwordEncoder" class="de.gimik.apps.gpstracker.backend.security.MD5Encoder">
+    </bean>
+
+    <security:authentication-manager id="authenticationManager">
+        <security:authentication-provider user-service-ref="userService">
+            <security:password-encoder ref="passwordEncoder"></security:password-encoder>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <security:http
+            realm="Protected API"
+            use-expressions="true"
+            auto-config="false"
+            create-session="stateless"
+            entry-point-ref="unauthorizedEntryPoint"
+            authentication-manager-ref="authenticationManager">
+        <security:csrf disabled="true"/>
+        <security:headers>
+        	 <security:frame-options disabled="true"></security:frame-options>
+        </security:headers>
+        <security:custom-filter ref="authenticationTokenProcessingFilter" position="FORM_LOGIN_FILTER"/>
+        <security:intercept-url method="POST" pattern="/rest/security/authenticate" access="permitAll"/>
+        <security:intercept-url method="POST" pattern="/rest/security/login" access="permitAll"/>
+<!--        <security:intercept-url method="GET" pattern="/rest/security" access="hasAnyRole('ROLE_ADMIN','ROLE_EMPLOYEES', 'ROLE_PILOT')"/>-->
+        <security:intercept-url method="GET" pattern="/rest/security" access="permitAll"/>
+        <security:intercept-url pattern="/rest/clientapp/**" access="isAnonymous()"/>
+        <security:intercept-url pattern="/rest/signs/**" access="permitAll"/>
+        <security:intercept-url pattern="/rest/signs" access="permitAll"/>
+        <security:intercept-url pattern="/rest/actionlog/**" access="hasRole('ROLE_ADMIN')"/>
+        <security:intercept-url pattern="/rest/actionlog" access="hasRole('ROLE_ADMIN')"/>
+
+    </security:http>
+
+    <bean id="unauthorizedEntryPoint" class="de.gimik.apps.gpstracker.backend.web.UnauthorizedEntryPoint"/>
+
+    <bean class="de.gimik.apps.gpstracker.backend.web.AuthenticationTokenProcessingFilter"
+          id="authenticationTokenProcessingFilter">
+        <constructor-arg ref="userService"/>
+    </bean>
+
+	<bean id="serverConfig" class="de.gimik.apps.gpstracker.backend.util.ServerConfig">
+	    <property name="sqliteTemplate" value="D://CONGVIEC//PROJECT2015//image_test/sqllite/finksecure_template.sqlite"/>
+	      <property name="pushUrl" value="http://localhost:4000/"/>
+	     <!--property name="hostFileUpload" value="http://178.63.227.222:8080/static-images-1"/-->
+	      <property name="hostFileUpload" value="http://h2835300.stratoserver.net:8080/static-images-1/blupassionv8"/>
+	       <property name="host" value="https://admiraldirekt.svpro.de:8443/admiraldirekt/"/>
+	</bean>
+
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="w00560ab.kasserver.com"/>
+        <property name="port" value="25"/>
+        <property name="username" value="m03f28ee"/>
+        <property name="password" value="R4t5m14lc#"/>
+
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.transport.protocol">smtp</prop>
+                <prop key="mail.smtps.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.smtp.ssl.enable">false</prop>
+                <prop key="mail.debug">true</prop>
+                <prop key="mail.from">claimstar@sv-krug.de</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+        <property name="velocityProperties">
+            <value>
+                resource.loader=class
+                class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+            </value>
+        </property>
+    </bean>
+    <bean class="de.gimik.apps.gpstracker.backend.service.AutowireHelper" />
+    
+    <!-- This bean scans for javax.websocket.server.ServerEndpoint annotations -->
+    <bean id="serverEndpointExporter" class="org.springframework.web.socket.server.standard.ServerEndpointExporter" />
+
+</beans>

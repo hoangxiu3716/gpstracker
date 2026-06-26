@@ -1,0 +1,66 @@
+<!-- Interfaces View -->
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h2 style="font-size: 24px; font-weight: 600;" class="card-title">API Integrations</h2>
+    <p style="color: #6b7280; font-size: 14px;">Manage external system connections and APIs</p>
+  </div>
+  <button class="btn btn-primary" ng-click="addIntegration()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    Add Integration
+  </button>
+</div>
+
+<!-- Integration Cards -->
+<div class="grid grid-cols-3 mb-6">
+  <div class="card" ng-repeat="integration in integrations">
+    <div class="flex justify-between items-center mb-4">
+      <div style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;"
+           ng-class="'bg-' + integration.colorClass">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+      </div>
+      <span class="badge badge-{{integration.statusClass}}">{{integration.status}}</span>
+    </div>
+    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;" class="card-title">{{integration.name}}</h3>
+    <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px;">{{integration.description}}</p>
+    <div class="flex justify-between items-center">
+      <span style="font-size: 12px; color: #6b7280;">Last sync: {{integration.lastSync}}</span>
+      <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" 
+              ng-if="integration.status == 'Connected'" ng-click="configureIntegration(integration)">Configure</button>
+      <button class="btn btn-primary" style="padding: 4px 12px; font-size: 12px;" 
+              ng-if="integration.status == 'Pending'" ng-click="setupIntegration(integration)">Setup</button>
+    </div>
+  </div>
+</div>
+
+<!-- API Keys -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">API Keys</h2>
+    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" ng-click="generateKey()">Generate New Key</button>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Key</th>
+          <th>Created</th>
+          <th>Last Used</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="key in apiKeys">
+          <td><strong>{{key.name}}</strong></td>
+          <td><code style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-size: 12px;">{{key.key}}</code></td>
+          <td>{{key.created}}</td>
+          <td>{{key.lastUsed}}</td>
+          <td>
+            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 4px;" ng-click="showKey(key)">Show</button>
+            <button class="btn" style="padding: 4px 8px; font-size: 12px; background: #fee2e2; color: #991b1b;" ng-click="revokeKey(key)">Revoke</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

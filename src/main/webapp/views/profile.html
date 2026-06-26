@@ -1,0 +1,236 @@
+<!-- Profile View -->
+<div class="grid grid-cols-2 profile-grid">
+  <!-- Profile Card - View Mode -->
+  <div class="card profile-sidebar" ng-hide="isEditing">
+    <div class="text-center">
+      <div class="avatar avatar-lg" style="margin: 0 auto 16px;">{{getAvatarInitials()}}</div>
+      <h2 style="font-size: 20px; font-weight: 600;" class="card-title">{{user.fullname || user.username || 'N/A'}}</h2>
+      <p style="color: #6b7280; font-size: 14px;">{{getRoleName()}}</p>
+    </div>
+    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">ID</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.id || 'N/A'}}</p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Username</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.username || 'N/A'}}</p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Role</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5"><span class="badge badge-info">{{getRoleName()}}</span></p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Full Name</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.fullname || 'N/A'}}</p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">First Name</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.firstName || 'N/A'}}</p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Name</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.name || 'N/A'}}</p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Email</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.email || 'N/A'}}</p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Phone</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.phone || 'N/A'}}</p>
+      </div>
+      <div class="form-group">
+        <p style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Note</p>
+        <p style="font-size: 14px;" class="card-title padding-top-5">{{user.note || 'N/A'}}</p>
+      </div>
+    </div>
+    <button class="btn btn-primary w-full mt-6" style="justify-content: center;" ng-click="editProfile()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+      Edit Profile
+    </button>
+  </div>
+
+  <!-- Profile Card - Edit Mode -->
+  <div class="card profile-sidebar" ng-show="isEditing">
+    <div class="card-header">
+      <h2 class="card-title">Edit Profile</h2>
+    </div>
+    <form ng-submit="saveProfile()">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-input" ng-model="editForm.username" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" ng-model="editForm.fullname" placeholder="Full Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input type="text" class="form-input" ng-model="editForm.firstName" placeholder="First Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" ng-model="editForm.name" placeholder="Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" ng-model="editForm.email" placeholder="Email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="text" class="form-input" ng-model="editForm.phone" placeholder="Phone">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note</label>
+        <textarea class="form-input" ng-model="editForm.note" placeholder="Note" rows="3"></textarea>
+      </div>
+      <div class="flex gap-2 mt-6">
+        <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+        <button type="button" class="btn btn-secondary" style="flex: 1; justify-content: center;" ng-click="cancelEdit()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Stats & Activity -->
+  <div class="profile-main-content">
+    <!-- Stats -->
+    <div class="grid grid-cols-3 mb-6">
+      <div class="stat-card" ng-repeat="stat in stats">
+        <div class="stat-icon {{stat.colorClass}}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>
+        </div>
+        <div class="stat-value">{{stat.value}}</div>
+        <div class="stat-label">{{stat.label}}</div>
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card mb-6">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Change Password
+        </h2>
+      </div>
+      <form ng-submit="changePassword()">
+        <div class="grid grid-cols-3" style="gap: 16px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Current Password</label>
+            <div style="position: relative;">
+              <input type="{{showCurrentPassword ? 'text' : 'password'}}" class="form-input" ng-model="passwordForm.currentPassword" placeholder="Enter current password" required style="padding-right: 40px;">
+              <button type="button" class="password-toggle-btn" ng-click="showCurrentPassword = !showCurrentPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6b7280; padding: 4px;">
+                <svg ng-show="!showCurrentPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg ng-show="showCurrentPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">New Password</label>
+            <div style="position: relative;">
+              <input type="{{showNewPassword ? 'text' : 'password'}}" class="form-input" ng-model="passwordForm.newPassword" placeholder="Enter new password" required style="padding-right: 40px;">
+              <button type="button" class="password-toggle-btn" ng-click="showNewPassword = !showNewPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6b7280; padding: 4px;">
+                <svg ng-show="!showNewPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg ng-show="showNewPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Confirm New Password</label>
+            <div style="position: relative;">
+              <input type="{{showConfirmPassword ? 'text' : 'password'}}" class="form-input" ng-model="passwordForm.confirmPassword" placeholder="Confirm new password" required style="padding-right: 40px;">
+              <button type="button" class="password-toggle-btn" ng-click="showConfirmPassword = !showConfirmPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6b7280; padding: 4px;">
+                <svg ng-show="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg ng-show="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Password Requirements -->
+        <div style="margin-top: 12px; padding: 12px; background: rgba(6, 182, 212, 0.1); border-radius: 8px; font-size: 12px; color: #6b7280;">
+          <strong style="color: var(--primary-cyan);">Password Requirements:</strong>
+          <!-- <span style="margin-left: 8px;">Minimum 8 characters, include uppercase, lowercase, and number</span> -->
+           <span style="margin-left: 8px;">Minimum 8 characters, lowercase, and number</span>
+        </div>
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+          <button type="submit" class="btn btn-primary" ng-disabled="!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card mt-6">
+      <div class="card-header">
+        <h2 class="card-title">Recent Activity</h2>
+      </div>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <!-- <th>User</th> -->
+              <th>Action</th>
+              <th>Details</th>
+              <th>Modify Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="log in activity">
+              <!-- <td>{{log.username}}</td> -->
+              <td>{{log.action}}</td>
+              <td>
+                  <div ng-repeat="(key, value) in log.detail" class="detail-item">
+                    <strong class="detail-key">{{ key }}:</strong>
+                    <span class="detail-value">{{ value }}</span>
+                  </div>
+              </td>
+              <td>{{log.dateModify | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination Controls -->
+      <div class="card-footer flex justify-between items-center bg-gray-50 p-3">
+        <span class="text-sm text-gray-600">
+            Page <b>{{pagination.currentPage + 1}}</b> of <b>{{pagination.totalPages}}</b>
+            <span ng-if="pagination.totalItems > 0"> ({{pagination.totalItems}} records)</span>
+        </span>
+    
+        <nav class="flex items-center space-x-1" ng-if="pagination.totalPages > 1">
+            <!-- Previous Button -->
+            <button ng-click="previousPage()" ng-disabled="pagination.currentPage <= 0"
+                    class="btn btn-secondary btn-sm p-2 leading-none disabled:opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+    
+            <!-- Page Numbers -->
+            <span ng-repeat="page in pagination.pages">
+                <button ng-if="page !== '...'"
+                        ng-click="goToPage(page)"
+                        class="btn btn-sm"
+                        ng-class="{
+                            'btn-primary': page === (pagination.currentPage + 1), 
+                            'btn-secondary hover:bg-gray-200': page !== (pagination.currentPage + 1)
+                        }">
+                    {{ page }}
+                </button>
+                <span ng-if="page === '...'" class="px-3 py-2 text-gray-500 font-bold">&hellip;</span>
+            </span>
+    
+            <!-- Next Button -->
+            <button ng-click="nextPage()" ng-disabled="pagination.currentPage >= pagination.totalPages - 1"
+                    class="btn btn-secondary btn-sm p-2 leading-none disabled:opacity-50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

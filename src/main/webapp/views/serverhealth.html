@@ -1,0 +1,66 @@
+<!-- Server Health View -->
+<!-- System Status Banner -->
+<div class="card mb-6" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 4px solid #10b981;">
+  <div class="flex items-center gap-4">
+    <div style="width: 48px; height: 48px; background-color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div>
+      <h3 style="font-size: 18px; font-weight: 600; color: #065f46;">{{systemStatus.message}}</h3>
+      <p style="color: #047857; font-size: 14px;">Last checked: {{systemStatus.lastChecked}}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-4 mb-6">
+  <div class="stat-card" ng-repeat="stat in stats">
+    <div class="stat-icon {{stat.colorClass}}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+    </div>
+    <div class="stat-value">{{stat.value}}</div>
+    <div class="stat-label">{{stat.label}}</div>
+  </div>
+</div>
+
+<!-- Services Status -->
+<div class="card mb-6">
+  <div class="card-header">
+    <h2 class="card-title">Service Status</h2>
+    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" ng-click="refreshStatus()">Refresh</button>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Status</th>
+          <th>Response Time</th>
+          <th>Uptime</th>
+          <th>Last Check</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="service in services">
+          <td><strong>{{service.name}}</strong></td>
+          <td><span class="badge badge-{{service.statusClass}}">{{service.status}}</span></td>
+          <td>{{service.responseTime}}</td>
+          <td>{{service.uptime}}</td>
+          <td>{{service.lastCheck}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Recent Incidents -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Recent Incidents</h2>
+  </div>
+  <div ng-if="hasNoIncidents" style="padding: 20px; text-align: center; color: #6b7280;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px; color: #10b981;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <p style="font-size: 16px; font-weight: 500;">No incidents in the last 30 days</p>
+    <p style="font-size: 14px;">All systems have been running smoothly</p>
+  </div>
+</div>

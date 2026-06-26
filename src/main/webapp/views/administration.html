@@ -1,0 +1,160 @@
+<!-- Administration View -->
+
+<!-- Add User Modal -->
+<div class="modal-overlay" ng-show="showUserModal" ng-click="closeUserModal()">
+  <div class="modal-container" ng-click="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New User</h3>
+      <button class="modal-close" ng-click="closeUserModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Username <span class="required">*</span></label>
+          <input type="text" class="form-input" ng-model="userForm.username" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password <span class="required">*</span></label>
+          <input type="password" class="form-input" ng-model="userForm.password" placeholder="Enter password">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-input" ng-model="userForm.firstName" placeholder="Enter first name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-input" ng-model="userForm.name" placeholder="Enter last name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" ng-model="userForm.fullname" placeholder="Enter full name (optional, auto-generated if empty)">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" ng-model="userForm.email" placeholder="Enter email address">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="tel" class="form-input" ng-model="userForm.phone" placeholder="Enter phone number">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role <span class="required">*</span></label>
+        <div class="role-radio-group">
+          <label class="role-radio" ng-repeat="role in roleList" ng-class="{'disabled': disabledRoles.indexOf(role.name) !== -1}">
+            <input type="radio" name="userRole" ng-model="userForm.roleName" value="{{role.name}}" ng-disabled="disabledRoles.indexOf(role.name) !== -1">
+            <span class="role-radio-mark"></span>
+            <span class="role-radio-label">{{role.description}}</span>
+          </label>
+        </div>
+        <small class="error-text" ng-show="checkRole">At least one role must be selected.</small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note</label>
+        <textarea class="form-input" ng-model="userForm.note" placeholder="Enter any notes about this user" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" ng-click="closeUserModal()">Cancel</button>
+      <button class="btn btn-primary" ng-click="saveUser()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+        Create User
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h2 style="font-size: 24px; font-weight: 600;" class="card-title">User Management</h2>
+    <p style="color: #6b7280; font-size: 14px;">Manage users, roles, and permissions</p>
+  </div>
+  <button class="btn btn-primary" ng-click="addUser()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+    Add User
+  </button>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-4 mb-6">
+  <div class="stat-card" ng-repeat="stat in stats">
+    <div class="stat-icon {{stat.colorClass}}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="stat-value">{{stat.value}}</div>
+    <div class="stat-label">{{stat.label}}</div>
+  </div>
+</div>
+
+<!-- Users Table -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">All Users</h2>
+    <div class="flex gap-2">
+      <input type="text" class="form-input" placeholder="Search users..." style="width: 200px;" ng-model="searchQuery">
+      <select class="form-input" style="width: 150px;" ng-model="roleFilter">
+        <option>All Roles</option>
+        <option>Super Admin</option>
+        <option>Admin</option>
+        <option>Editor</option>
+        <option>User</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Phone</th>
+          <th>Note</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="user in userDatas | filter:searchQuery">
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="avatar" style="width: 32px; height: 32px; font-size: 12px;">{{getInitials(user)}}</div>
+              <div>
+                <strong>{{getDisplayName(user)}}</strong>
+                <div style="font-size: 11px; color: #6b7280;">@{{user.username}}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{user.email || '-'}}</td>
+          <td><span class="badge badge-{{getRoleClass(user)}}">{{getRoleName(user)}}</span></td>
+          <td>
+            <span ng-if="user.phone" style="font-size: 12px; color: #6b7280;">{{user.phone}}</span>
+            <span ng-if="!user.phone" style="color: #9ca3af;">-</span>
+          </td>
+          <td>
+            <span ng-if="user.note" style="font-size: 12px; color: #6b7280;" title="{{user.note}}">{{user.note.length > 20 ? user.note.substring(0,20) + '...' : user.note}}</span>
+            <span ng-if="!user.note" style="color: #9ca3af;">-</span>
+          </td>
+          <td>
+            <div class="action-buttons-inline">
+              <button class="btn btn-warning btn-icon" title="Reset Password to 1234" ng-click="resetPassword(user)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </button>
+              <button class="btn btn-danger btn-icon" title="Delete User" ng-click="deleteUser(user)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr ng-if="userDatas.length === 0">
+          <td colspan="6" style="text-align: center; color: #6b7280; padding: 40px;">No users found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

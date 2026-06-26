@@ -1,0 +1,209 @@
+<!-- Mission Control View - Simplified for AE.01 Robot API -->
+<div class="mission-control-container">
+  
+  <!-- Top Status Bar -->
+  <!-- <div class="status-panel">
+    <div class="status-item">
+      <button class="btn btn-sm btn-secondary refresh-status-btn" ng-click="refreshStatus()" title="Refresh Status">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+      </button>
+    </div>
+    <div class="status-item">
+      <span class="status-label">System</span>
+      <span class="status-badge" ng-class="{'badge-success': robot.connected, 'badge-danger': !robot.connected}">
+        {{robot.connected ? 'Online' : 'Offline'}}
+      </span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Mode</span>
+      <span class="status-badge" ng-class="{'badge-info': robot.mode === 'idle', 'badge-warning': robot.mode === 'navigating', 'badge-success': robot.mode === 'arrived'}">
+        {{robot.mode | uppercase}}
+      </span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">Speed</span>
+      <input type="range" min="1" max="100" ng-model="speed" class="speed-slider-inline" style="width: 100px;">
+      <span class="speed-value">{{speed}}%</span>
+    </div>
+    <div class="status-item">
+      <button class="btn btn-danger btn-sm stop-btn" ng-click="emergencyStop()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        STOP
+      </button>
+    </div>
+  </div> -->
+
+  <!-- Screen + Controls Layout -->
+  <div class="mission-screen-layout">
+    <!-- Left: Screen / Camera (70%) -->
+    <div class="screen-column">
+      <div class="camera-section">
+        <div class="camera-section-header">
+          <h3 class="panel-title">Pick {{missionId}}</h3>
+          <div class="camera-controls">
+            <button class="btn btn-sm btn-secondary" ng-click="toggleFullscreenCamera()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+              Fullscreen
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Camera View -->
+        <div class="camera-live-container">
+          <iframe 
+            ng-src="{{liveCameraUrl}}" 
+            class="camera-live-iframe"
+            frameborder="0" 
+            allowfullscreen
+            allow="autoplay; fullscreen">
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Controls (30%) -->
+    <div class="controls-column padding-top-10">
+      <!-- Top buttons: Start / Stop / Emergency (vertical) -->
+      <div class="control-top-buttons">
+        <button class="btn btn-primary" ng-click="runCustomPosition(missionId)" ng-disabled="!robot.connected">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Start Mission
+        </button>
+        <button class="btn btn-secondary" ng-click="cancelJob()" ng-disabled="!robot.connected">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          Stop Mission
+        </button>
+        <button class="btn btn-danger" ng-click="emergencyStop()" ng-disabled="!robot.connected">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32"><title>Warning-hex SVG Icon</title><path fill="currentColor" d="M16 21a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 16 21M15 8h2v10h-2z"/><path fill="currentColor" d="M23 29H9a1 1 0 0 1-.864-.496l-7-12a1 1 0 0 1 0-1.008l7-12A1 1 0 0 1 9 3h14a1 1 0 0 1 .864.496l7 12a1 1 0 0 1 0 1.008l-7 12A1 1 0 0 1 23 29M9.574 27h12.852l6.416-11l-6.416-11H9.574L3.158 16Z"/></svg>
+          Emergency Stop
+        </button>
+      </div>
+
+      <!-- Joystick Control (below buttons) -->
+      <div class="control-card joystick-section">
+        <h3 class="panel-title">Joystick Control</h3>
+        <div class="arrow-keys-container">
+          <div class="arrow-row arrow-row-top">
+            <button class="arrow-key" 
+                    ng-mousedown="startMovement('forward')" 
+                    ng-mouseup="stopMovement()" 
+                    ng-mouseleave="stopMovement()"
+                    ontouchstart="angular.element(this).scope().startMovement('forward')"
+                    ontouchend="angular.element(this).scope().stopMovement()"
+                    ng-disabled="!robot.connected">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+            </button>
+          </div>
+          <div class="arrow-row arrow-row-bottom">
+            <button class="arrow-key" 
+                    ng-mousedown="startMovement('turn_left')" 
+                    ng-mouseup="stopMovement()" 
+                    ng-mouseleave="stopMovement()"
+                    ontouchstart="angular.element(this).scope().startMovement('turn_left')"
+                    ontouchend="angular.element(this).scope().stopMovement()"
+                    ng-disabled="!robot.connected">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button class="arrow-key" 
+                    ng-mousedown="startMovement('backward')" 
+                    ng-mouseup="stopMovement()" 
+                    ng-mouseleave="stopMovement()"
+                    ontouchstart="angular.element(this).scope().startMovement('backward')"
+                    ontouchend="angular.element(this).scope().stopMovement()"
+                    ng-disabled="!robot.connected">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <button class="arrow-key" 
+                    ng-mousedown="startMovement('turn_right')" 
+                    ng-mouseup="stopMovement()" 
+                    ng-mouseleave="stopMovement()"
+                    ontouchstart="angular.element(this).scope().startMovement('turn_right')"
+                    ontouchend="angular.element(this).scope().stopMovement()"
+                    ng-disabled="!robot.connected">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="joystick-info">
+          <span class="info-label">Speed: {{speed}}%</span>
+          <span class="info-label" ng-show="robot.connected">
+            <span class="status-dot online"></span> Connected
+          </span>
+          <span class="info-label" ng-hide="robot.connected">
+            <span class="status-dot offline"></span> Disconnected
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Full-width info containers below (100% width) -->
+  <div class="fullwidth-info-container">
+    <div class="info-cards-row">
+      <!-- Card 1: Speed (editable via slider) -->
+      <div class="info-card card"> 
+        <h4 class="card-title">Speed</h4>
+        <div class="speed-control">
+          <!-- <div class="progress" aria-hidden="true">
+            <div class="progress-fill" ng-style="{'width': (speed || 0) + '%'}"></div>
+          </div> -->
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+            <input type="range" min="1" max="100" ng-model="speed" class="form-input-sm" style="flex:1;">
+            <span class="speed-value">{{speed}}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: System health, Battery Level, Wifi Strength (read-only green bars) -->
+      <div class="info-card card"> 
+        <h4 class="card-title">System Status</h4>
+        <div class="stat-row">
+          <div class="stat-label">System health</div>
+          <div class="progress">
+            <div class="progress-fill green" ng-style="{'width': '100%'}"></div>
+          </div>
+          <div class="stat-value">Normal</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">Battery Level</div>
+          <div class="progress">
+            <div class="progress-fill green" ng-style="{'width': (robot.battery || robot.batteryLevel || 65) + '%'}"></div>
+          </div>
+          <div class="stat-value">{{robot.battery || robot.batteryLevel || 65}}%</div>
+        </div>
+        <!-- <div class="stat-row">
+          <div class="stat-label">Wi‑Fi Strength</div>
+          <div class="progress">
+            <div class="progress-fill green" ng-style="{'width': (robot.wifiStrength || robot.wifi || 75) + '%'}"></div>
+          </div>
+          <div class="stat-value">{{robot.wifiStrength || robot.wifi || 75}}%</div>
+        </div> -->
+      </div>
+
+      <!-- Card 3: Four titles placeholders -->
+      <div class="info-card card"> 
+        <!-- <h4 class="card-title">Misc</h4> -->
+        <ul style="margin-top:8px;list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;">
+          <li>AE.01: {{missionId}}</li>
+          <li>Pick: {{missionId}}</li>
+          <li>Session : ######</li>
+          <li>User-ID: {{user.id}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Progress Overlay -->
+  <div class="navigation-overlay" ng-if="navigation.active">
+    <div class="navigation-modal">
+      <h3>Task in Progress</h3>
+      <p>Action: <strong>{{navigation.target.name}}</strong></p>
+      <div class="progress-bar-large">
+        <div class="progress-fill" ng-style="{'width': navigation.progress + '%'}"></div>
+      </div>
+      <span class="progress-text">{{navigation.progress}}%</span>
+      <button class="btn btn-danger" ng-click="cancelNavigation()">Cancel</button>
+    </div>
+  </div>
+</div>
